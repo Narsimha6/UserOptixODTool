@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:context="http://www.springframework.org/schema/context" 
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+     http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+     http://www.springframework.org/schema/tx
+     http://www.springframework.org/schema/tx/spring-tx-4.2.xsd
+       http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-4.2.xsd">
+
+	<context:annotation-config />
+	<context:property-placeholder location="classpath:application.properties" />
+	<context:component-scan base-package="com.useroptix.odtool" />
+
+	<bean class="org.springframework.orm.hibernate4.HibernateExceptionTranslator" />
+
+	<bean id="userOptixDataSource" class="org.apache.tomcat.jdbc.pool.DataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<!-- <property name="url" value="${db.url}"/> <property name="username" 
+			value="${db.username}"/> <property name="password" value="${db.password}"/>
+		<property name="url" value="jdbc:mysql://10.91.172.3:3306/useroptix" /> -->
+		<property name="url" value="jdbc:mysql://198.11.223.30:3306/useroptix" />
+		<property name="username" value="root" />
+		<property name="password" value="Wm763GaY" />
+		<property name="initialSize" value="1" />
+		<property name="maxActive" value="10" />
+		<property name="maxIdle" value="10" />
+		<property name="minIdle" value="0" />
+		<property name="testOnBorrow" value="true" />
+		<property name="validationQuery" value="select 1" />
+		<property name="timeBetweenEvictionRunsMillis" value="30000" />
+		<property name="minEvictableIdleTimeMillis" value="30000" />
+	</bean>
+	<bean id="applicationContextProvder" class="com.useroptix.odtool.utils.ApplicationContextProvider"/>
+	<bean id="projectService" name="projectService" class="com.useroptix.odtool.service.impl.ProjectServiceImpl" />
+	<bean id="projectDao" name="projectDao" class="com.useroptix.odtool.dao.impl.ProjectDAOImpl" />
+	<bean id="appDataModel" class="com.useroptix.odtool.to.ApplicationDataModel" /> 
+	<bean id="userOptixEntityManagerFactory"
+		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+		<property name="persistenceUnitName" value="userOptixEntityManagerFactory" />
+		<property name="packagesToScan" value="com.useroptix.odtool.bo" />
+		
+		<property name="dataSource" ref="userOptixDataSource" />
+		<property name="jpaVendorAdapter">
+			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+				<property name="showSql" value="false" />
+				<property name="databasePlatform" value="org.hibernate.dialect.MySQLDialect" />
+			</bean>
+		</property>
+	</bean>
+
+	<bean id="useroptixTransactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+		<property name="entityManagerFactory" ref="userOptixEntityManagerFactory" />
+	</bean>
+
+	<tx:annotation-driven transaction-manager="useroptixTransactionManager" />
+</beans>
